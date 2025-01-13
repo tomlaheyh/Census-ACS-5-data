@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Census Data Visualizer</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+        select {
+            padding: 5px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="controls">
+            <select id="stateSelect">
+                <!-- Will be populated with states -->
+            </select>
+            <select id="countySelect">
+                <option>Select a state first</option>
+            </select>
+            <select id="measureSelect">
+                <option value="B01003_001E">Total Population</option>
+                <option value="poverty_rate">Poverty Rate (B17001)</option>
+                <option value="median_income">Median Household Income (B19013)</option>
+            </select>
+        </div>
+        <canvas id="dataChart"></canvas>
+    </div>
+
+    <script>
+        let chart;
+
+        async function loadStates() {
+            const response = await fetch('https://api.census.gov/data/2020/acs/acs5?get=NAME&for=state:*');
+            const data = await response.json();
+            const stateSelect = document.getElementById('stateSelect');
+            
+            stateSelect.innerHTML = '<option value="">Select a state</option>';
+            data.slice(1).forEach(state => {
+                const option = document.createElement('option');
+                option.value = state[1];
+                option.textContent = state[0];
+                stateSelect.appendChild(option);
+            });
+        }
+
+        async function loadCounties(state) {
+            const response = await fetch(`https://api.census.gov/data/2020/acs/acs5?get=NAME&for=county:*&in=state:${state}`);
+            const data = await response.json();
+            const countySelect = document.getElementById('countySelect');
+            
+            countySelect.innerHTML = '<option value="">Select a county</option>';
+            data.slice(1).forEach(county => {
+                const option = document.createElement('option');
+                option.value = county[2];
+                option.textContent = county[0].split(',')[0]; // Remove state name
+                countySelect.appendChild(option);
+            });
+        }
+
+        async function getCensusData() {
+            const state = document.getElementById('stateSelect').value;
+            const county = document.getElementById('countySelect').value;
+            const measure = document.getElementById('measureSelect').value;
+
+            let url;
+            let calculatedValue;
+
+            if (measure === 'poverty_rate') {
+                // Get both poverty count and total population
+                url = `https://api.census.gov/data/2020/acs/acs5?get=B17001_002E,B17001_001E&for=county:${county}&in=state:${state}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                calculatedValue = (data[1][0] / data[1][1] * 100).toFixed(1);
+            } else {
+                // Direct measures
+                url = `https://api.census.gov/data/2020/acs/acs5?get=${measure}&for=county:${county}&in=state:${state}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                calculatedValue = parseInt(data[1][0]).toLocaleString();
+            }
+
+            updateChart(calculatedValue, measure);
+        }
+
+        function updateChart(value, measure) {
+            if (chart) {
+                chart.destroy();
+            }
+
+            const ctx = document.getElementById('dataChart').getContext('2d');
+            const measureLabels = {
+                'B01003_001E': 'Total Population',
+                'poverty_rate': 'Poverty Rate (%)',
+                'median_income': 'Median Household Income ($)'
+            };
+
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [measureLabels[measure]],
+                    datasets: [{
+                        label: document.getElementById('countySelect').options[document.getElementById('countySelect').selectedIndex].text,
+                        data: [value],
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Event listeners
+        document.getElementById('stateSelect').addEventListener('change', function() {
+            loadCounties(this.value);
+        });
+
+        document.getElementById('countySelect').addEventListener('change', function() {
+            if (this.value) getCensusData();
+        });
+
+        document.getElementById('measureSelect').addEventListener('change', function() {
+            if (document.getElementById('countySelect').value) getCensusData();
+        });
+
+        // Initialize page
+        loadStates();
+    </script>
+</body>
+</html>

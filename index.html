@@ -62,7 +62,7 @@
             data.slice(1).forEach(county => {
                 const option = document.createElement('option');
                 option.value = county[2];
-                option.textContent = county[0].split(',')[0]; // Remove state name
+                option.textContent = county[0].split(',')[0];
                 countySelect.appendChild(option);
             });
         }
@@ -72,32 +72,35 @@
             const county = document.getElementById('countySelect').value;
             const measure = document.getElementById('measureSelect').value;
 
-            let url;
-            let calculatedValue;
+            const years = ['2016', '2017', '2018', '2019', '2020'];
+            let values = [];
 
-            if (measure === 'poverty_rate') {
-                // Get both poverty count and total population
-                url = `https://api.census.gov/data/2020/acs/acs5?get=B17001_002E,B17001_001E&for=county:${county}&in=state:${state}`;
-                const response = await fetch(url);
-                const data = await response.json();
-                calculatedValue = (data[1][0] / data[1][1] * 100).toFixed(1);
-            } else {
-                // Direct measures
-                url = `https://api.census.gov/data/2020/acs/acs5?get=${measure}&for=county:${county}&in=state:${state}`;
-                const response = await fetch(url);
-                const data = await response.json();
-                calculatedValue = parseInt(data[1][0]).toLocaleString();
+            for (const year of years) {
+                if (measure === 'poverty_rate') {
+                    const url = `https://api.census.gov/data/${year}/acs/acs5?get=B17001_002E,B17001_001E&for=county:${county}&in=state:${state}`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    const rate = (data[1][0] / data[1][1] * 100).toFixed(1);
+                    values.push(rate);
+                } else {
+                    const url = `https://api.census.gov/data/${year}/acs/acs5?get=${measure}&for=county:${county}&in=state:${state}`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    values.push(parseInt(data[1][0]));
+                }
             }
 
-            updateChart(calculatedValue, measure);
+            updateChart(values, measure, years);
         }
 
-        function updateChart(value, measure) {
+        function updateChart(values, measure, years) {
             if (chart) {
                 chart.destroy();
             }
 
             const ctx = document.getElementById('dataChart').getContext('2d');
+            const countyName = document.getElementById('countySelect').options[document.getElementById('countySelect').selectedIndex].text;
+
             const measureLabels = {
                 'B01003_001E': 'Total Population',
                 'poverty_rate': 'Poverty Rate (%)',
@@ -107,10 +110,10 @@
             chart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: [measureLabels[measure]],
+                    labels: years,
                     datasets: [{
-                        label: document.getElementById('countySelect').options[document.getElementById('countySelect').selectedIndex].text,
-                        data: [value],
+                        label: `${measureLabels[measure]} - ${countyName}`,
+                        data: values,
                         backgroundColor: 'rgba(54, 162, 235, 0.2)',
                         borderColor: 'rgba(54, 162, 235, 1)',
                         borderWidth: 1

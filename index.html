@@ -71,35 +71,66 @@
             const state = document.getElementById('stateSelect').value;
             const county = document.getElementById('countySelect').value;
             const measure = document.getElementById('measureSelect').value;
-
             const years = ['2016', '2017', '2018', '2019', '2020'];
-            let values = [];
+            
+            let countyValues = [];
+            let stateValues = [];
+            let usValues = [];
 
             for (const year of years) {
                 if (measure === 'poverty_rate') {
-                    const url = `https://api.census.gov/data/${year}/acs/acs5?get=B17001_002E,B17001_001E&for=county:${county}&in=state:${state}`;
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    const rate = (data[1][0] / data[1][1] * 100).toFixed(1);
-                    values.push(rate);
+                    // County data
+                    let url = `https://api.census.gov/data/${year}/acs/acs5?get=B17001_002E,B17001_001E&for=county:${county}&in=state:${state}`;
+                    let response = await fetch(url);
+                    let data = await response.json();
+                    let rate = (data[1][0] / data[1][1] * 100).toFixed(1);
+                    countyValues.push(rate);
+
+                    // State data
+                    url = `https://api.census.gov/data/${year}/acs/acs5?get=B17001_002E,B17001_001E&for=state:${state}`;
+                    response = await fetch(url);
+                    data = await response.json();
+                    rate = (data[1][0] / data[1][1] * 100).toFixed(1);
+                    stateValues.push(rate);
+
+                    // US data
+                    url = `https://api.census.gov/data/${year}/acs/acs5?get=B17001_002E,B17001_001E&for=us:*`;
+                    response = await fetch(url);
+                    data = await response.json();
+                    rate = (data[1][0] / data[1][1] * 100).toFixed(1);
+                    usValues.push(rate);
                 } else {
-                    const url = `https://api.census.gov/data/${year}/acs/acs5?get=${measure}&for=county:${county}&in=state:${state}`;
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    values.push(parseInt(data[1][0]));
+                    // County data
+                    let url = `https://api.census.gov/data/${year}/acs/acs5?get=${measure}&for=county:${county}&in=state:${state}`;
+                    let response = await fetch(url);
+                    let data = await response.json();
+                    countyValues.push(parseInt(data[1][0]));
+
+                    // State data
+                    url = `https://api.census.gov/data/${year}/acs/acs5?get=${measure}&for=state:${state}`;
+                    response = await fetch(url);
+                    data = await response.json();
+                    stateValues.push(parseInt(data[1][0]));
+
+                    // US data
+                    url = `https://api.census.gov/data/${year}/acs/acs5?get=${measure}&for=us:*`;
+                    response = await fetch(url);
+                    data = await response.json();
+                    usValues.push(parseInt(data[1][0]));
                 }
             }
 
-            updateChart(values, measure, years);
+            updateChart(countyValues, stateValues, usValues, measure, years);
         }
 
-        function updateChart(values, measure, years) {
+        function updateChart(countyValues, stateValues, usValues, measure, years) {
             if (chart) {
                 chart.destroy();
             }
 
             const ctx = document.getElementById('dataChart').getContext('2d');
             const countyName = document.getElementById('countySelect').options[document.getElementById('countySelect').selectedIndex].text;
+            const stateName = document.getElementById('stateSelect').options[document.getElementById('stateSelect').selectedIndex].text;
 
             const measureLabels = {
                 'B01003_001E': 'Total Population',
@@ -108,16 +139,36 @@
             };
 
             chart = new Chart(ctx, {
-                type: 'bar',
+                type: 'line',
                 data: {
                     labels: years,
-                    datasets: [{
-                        label: `${measureLabels[measure]} - ${countyName}`,
-                        data: values,
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
+                    datasets: [
+                        {
+                            label: `${countyName}`,
+                            data: countyValues,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 3,
+                            type: 'bar'
+                        },
+                        {
+                            label: stateName,
+                            data: stateValues,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            type: 'line'
+                        },
+                        {
+                            label: 'United States',
+                            data: usValues,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 3,
+                            fill: false,
+                            type: 'line'
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,

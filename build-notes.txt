@@ -1,0 +1,80 @@
+// build-notes.txt
+
+DEVELOPMENT ENVIRONMENT
+---------------------
+We use Visual Studio Code with Live Server for development.
+
+Installing VS Code:
+1. Go to https://code.visualstudio.com/
+2. Download and install VS Code
+3. After installation, install Live Server extension:
+  - Click Extensions icon in left sidebar (or press Ctrl+Shift+X)
+  - Search for "Live Server"
+  - Install the one by Ritwick Dey
+  - Restart VS Code if prompted
+
+Using Live Server:
+1. Open your project folder in VS Code
+2. Right-click on index.html
+3. Select "Open with Live Server"
+4. Website will open in your default browser
+5. Changes automatically reload when you save files
+
+PROJECT SETUP
+------------
+Create folder structure using PowerShell:
+mkdir css; mkdir js; mkdir js/measures; mkdir js/data
+
+View project structure:
+tree /f    : Shows folder/file structure (useful for documentation and sharing)
+
+SOURCE CONTROL WITH GITHUB
+------------------------
+We use GitHub for version control and hosting. It's free and provides:
+- Version control
+- Code backup
+- Free web hosting via GitHub Pages
+- Collaboration tools
+
+Setting up a new repository:
+1. Create new repository on GitHub.com
+2. Initialize local repository and push to GitHub:
+  git init
+  git add index.html
+  git commit -m "first commit"
+  git branch -M main
+  git remote add origin [your-repository-URL]
+  git push -u origin main
+
+Common GitHub commands:
+- git add [filename]    : Stage changes
+- git commit -m "[message]" : Commit changes
+- git push             : Push to GitHub
+- git status          : Check current status
+
+RUNNING JAVASCRIPT FROM COMMAND LINE
+----------------------------------
+Sometimes we need to run JavaScript directly (like fetching Census geography data). 
+For this we use Node.js from the command prompt.
+
+Installing Node.js:
+1. Go to https://nodejs.org/
+2. Download the LTS (Long Term Support) version
+3. Run the installer with default settings
+4. Verify installation by opening command prompt and typing:
+  node --version
+  Should display version number (e.g., v20.11.0)
+
+Running a .js file:
+1. Open command prompt
+2. Navigate to directory containing your .js file:
+  cd path/to/your/directory
+3. Run the file:
+  node filename.js
+4. To save output to a file:
+  node filename.js > output.txt
+
+Note: Running js files directly like this is useful for:
+- Data fetching and processing
+- File generation
+- One-time setup tasks

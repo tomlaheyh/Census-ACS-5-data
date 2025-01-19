@@ -1,0 +1,100 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+   <title>Census Data Visualizer</title>
+   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+   <div class="container">
+       <div class="title-section">
+           <h1>
+               <span id="mainTitle">American Community Survey ACS-5: Household Poverty</span>
+               (<span id="fieldName">S1701_C03_001E</span>
+               <button class="info-button" title="Show Census definition">ⓘ</button>)
+           </h1>
+       </div>
+       <div class="debug-section" id="debugSection" style="display: none; background: #f0f0f0; padding: 10px; margin: 10px 0; font-family: monospace;">
+           <h4>Debug Info - Current API Call:</h4>
+           <div id="apiCallDisplay"></div>
+       </div>
+       <div class="measure-type-selection">
+           <label>
+               <input type="radio" name="measureType" value="curated" checked> 
+               Use Curated Measures
+           </label>
+           <label>
+               <input type="radio" name="measureType" value="standard"> 
+               Enter Census Field ID (Detailed and Subject Tables only)
+           </label>
+       </div>
+       <div class="controls">
+           <div id="curatedControls">
+               <select id="categorySelect">
+                   <option value="">Select a Category</option>
+                   <option value="Poverty">Poverty</option>
+                   <option value="Households">Households</option>
+                   <option value="Families">Families</option>
+                   <option value="Foreign">Foreign</option>
+                   <option value="Veterans">Veterans</option>
+                   <option value="Social-Security">Social Security</option>
+                   <option value="Rent">Rent</option>
+                   <option value="Grandparents">Grandparents</option>
+                   <option value="UI-Disability">UI-Disability</option>
+                   <option value="Gov-Aid">Gov-Aid</option>
+                   <option value="Race">Race</option>
+                   <option value="Health-Insurance">Health Insurance</option>
+                   <option value="Education">Education</option>
+                   <option value="Work">Work</option>
+                   <option value="Household-Family">Household-Family</option>
+                   <option value="Language">Language</option>
+                   <option value="Commute">Commute</option>
+                   <option value="Jobs">Jobs</option>
+                   <option value="Age">Age</option>
+               </select>
+               <select id="measureSelect">
+                   <option value="">Select a Measure</option>
+               </select>
+           </div>
+           <div id="standardFieldInput" style="display: none;">
+               <input type="text" id="censusFieldInput" placeholder="Enter Census field ID (e.g., B01001_001E or S2201_C04_001E)">
+           </div>
+           <select id="stateSelect">
+               <!-- Will be populated with states -->
+           </select>
+           <select id="countySelect">
+               <option value="">Select a state first</option>
+           </select>
+           <select id="tractSelect">
+               <option value="">Select a Census Tract (optional)</option>
+           </select>
+           <button id="pullDataBtn" class="data-button">Pull Data</button>
+       </div>
+       <canvas id="dataChart"></canvas>
+       <div class="data-table-container">
+           <table id="dataTable">
+               <thead>
+                   <tr>
+                       <th>Year</th>
+                       <th id="geographyHeader">Geography</th>
+                       <th id="stateHeader">State</th>
+                       <th>United States</th>
+                   </tr>
+               </thead>
+               <tbody>
+                   <!-- Will be populated with data -->
+               </tbody>
+           </table>
+       </div>
+   </div>
+
+   <script src="js/data/states.js"></script>
+   <script src="js/data/counties.js"></script>
+   <script src="js/census_variables.js"></script>
+   <script src="js/chart-config.js"></script>
+   <script src="js/measures/poverty.js"></script>
+   <script src="js/measures/standard_census.js"></script>
+   <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+// categoryOptions.js
+const categoryOptions = [
+    { value: "Poverty", label: "Poverty" },
+    { value: "Households", label: "Households" },
+    { value: "Families", label: "Families" },
+    { value: "Foreign", label: "Foreign" },
+    { value: "Veterans", label: "Veterans" },
+    { value: "Social-Security", label: "Social Security" },
+    { value: "Rent", label: "Rent" },
+    { value: "Grandparents", label: "Grandparents" },
+    { value: "UI-Disability", label: "UI-Disability" },
+    { value: "Gov-Aid", label: "Gov-Aid" },
+    { value: "Race", label: "Race" },
+    { value: "Health-Insurance", label: "Health Insurance" },
+    { value: "Education", label: "Education" },
+    { value: "Work", label: "Work" },
+    { value: "Household-Family", label: "Household-Family" },
+    { value: "Language", label: "Language" },
+    { value: "Commute", label: "Commute" },
+    { value: "Jobs", label: "Jobs" },
+    { value: "Age", label: "Age" },
+];
